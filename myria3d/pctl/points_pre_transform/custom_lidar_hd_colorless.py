@@ -2,7 +2,8 @@
 import numpy as np
 from torch_geometric.data import Data
 
-COLORS_NORMALIZATION_MAX_VALUE = 255.0 * 256.0
+#COLORS_NORMALIZATION_MAX_VALUE = 255.0 * 256.0  # DREW 
+COLORS_NORMALIZATION_MAX_VALUE = 60000
 RETURN_NUMBER_NORMALIZATION_MAX_VALUE = 7.0
 
 
@@ -28,22 +29,31 @@ def lidar_hd_pre_transform(points):
         RETURN_NUMBER_NORMALIZATION_MAX_VALUE
     )
 
-    for color in ["Red", "Green", "Blue", "Infrared"]:
-        assert points[color].max() <= COLORS_NORMALIZATION_MAX_VALUE
-        points[color][:] = points[color] / COLORS_NORMALIZATION_MAX_VALUE
-        points[color][occluded_points] = 0.0
+    #Infrared = "nir" #usually "Infrared"
 
+    #points["Infrared"] = [.5 for _ in range(len(points))] #delete this DREW
+    #points["Red"] = [.5 for _ in range(len(points))] #delete this DREW
+    #points["Green"] = [.5 for _ in range(len(points))] #delete this DREW
+    #points["Blue"] = [.5 for _ in range(len(points))] #delete this DREW
+
+    #for color in ["Red", "Green", "Blue", "Infrared"]: #for color in ["Red", "Green", "Blue", "Infrared"]:
+    #    assert points[color].max() <= COLORS_NORMALIZATION_MAX_VALUE
+    #    points[color][:] = points[color] / COLORS_NORMALIZATION_MAX_VALUE
+    #    points[color][occluded_points] = 0.0
     # Additional features :
     # Average color, that will be normalized on the fly based on single-sample
-    rgb_avg = (
-        np.asarray([points["Red"], points["Green"], points["Blue"]], dtype=np.float32)
-        .transpose()
-        .mean(axis=1)
-    )
+    
+    rgb_avg = [1/2] * len(points)  # drew
+
+    #rgb_avg = (
+    #    np.asarray([points["Red"], points["Green"], points["Blue"]], dtype=np.float32)
+    #    .transpose()
+    #    .mean(axis=1)
+    #)
 
     # NDVI
-    ndvi = (points["Infrared"] - points["Red"]) / (points["Infrared"] + points["Red"] + 10**-6)
-
+    #ndvi = (points["Infrared"] - points["Red"]) / (points["Infrared"] + points["Red"] + 10**-6)
+    ndvi = [1/2] * len(points) #drew
     # todo
     x = np.stack(
         [
@@ -52,15 +62,15 @@ def lidar_hd_pre_transform(points):
                 "Intensity",
                 "ReturnNumber",
                 "NumberOfReturns",
-                "Red",
-                "Green",
-                "Blue",
-                "Infrared",
+                #"Red", #drew
+                #"Green",  #drew
+                #"Blue",  #drew 
+                #"Infrared", #drew
             ]
         ]
-        + [rgb_avg, ndvi],
+        + [[1/2] * len(points), [1/2] * len(points), [1/2] * len(points), [1/2] * len(points), rgb_avg, ndvi], #[rgb_avg, ndvi], #DREW
         axis=0,
-    ).transpose()
+    ).transpose().astype(np.float32) # DREW, remove this .astype ...
     x_features_names = [
         "Intensity",
         "ReturnNumber",

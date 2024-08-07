@@ -5,6 +5,9 @@ from typing import Dict, List, Literal, Optional, Tuple, Union
 import numpy as np
 import pdal
 import torch
+
+import laspy
+
 from torch.distributions import Categorical
 from torch_scatter import scatter_sum
 
@@ -136,7 +139,8 @@ class Interpolator:
         """
         basename = os.path.basename(raw_path)
         # Read number of points only from las metadata in order to minimize memory usage
-        nb_points = get_pdal_info_metadata(raw_path)["count"]
+        nb_points = len(laspy.read(raw_path))
+        #nb_points = get_pdal_info_metadata(raw_path)["count"] #8809586 for surdex data - DREW
         logits, idx_in_full_cloud = self.reduce_predicted_logits(nb_points)
 
         probas = torch.nn.Softmax(dim=1)(logits)

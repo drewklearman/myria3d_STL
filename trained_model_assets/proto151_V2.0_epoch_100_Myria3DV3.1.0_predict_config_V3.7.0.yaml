@@ -119,7 +119,7 @@ datamodule:
   points_pre_transform:
     _target_: functools.partial
     _args_:
-    - ${get_method:myria3d.pctl.points_pre_transform.lidar_hd.lidar_hd_pre_transform}
+    - ${get_method:myria3d.pctl.points_pre_transform.custom_lidar_hd_colorless.lidar_hd_pre_transform}
   pre_filter:
     _target_: functools.partial
     _args_:
@@ -263,7 +263,7 @@ predict:
   src_las: /path/to/input.las
   output_dir: /path/to/output_dir/
   ckpt_path: trained_model_assets/proto151_V2.0_epoch_100_Myria3DV3.1.0.ckpt
-  subtile_overlap: 0
+  subtile_overlap: 25
   gpus: 0
   interpolator:
     _target_: myria3d.models.interpolation.Interpolator
